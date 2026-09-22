@@ -501,6 +501,7 @@
       padding: 24px;
       background: var(--bg);
     }
+    .gate[hidden] { display: none !important; }
     .gate-card {
       width: min(100%, 360px);
       padding: 28px 24px 24px;
@@ -626,8 +627,10 @@
     input.focus();
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      const normalized = input.value.trim().toLowerCase();
+      // Accept beacon-hill and common variants (space / underscore)
+      const normalized = input.value.trim().toLowerCase().replace(/[\s_]+/g, "-");
       if (gateHash(normalized) === GATE_PASS_HASH) {
+        status.textContent = "";
         unlock();
       } else {
         status.textContent = "Try again.";
