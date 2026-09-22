@@ -426,6 +426,74 @@
       margin-top: 16px; padding-bottom: 4px;
     }
 
+
+    /* —— Home map —— */
+    .map-card { margin-bottom: 12px; }
+    .map-card .map-note {
+      font-size: 12.5px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4;
+    }
+    .map-wrap {
+      display: block; width: 100%;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      cursor: zoom-in;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .map-wrap img {
+      display: block; width: 100%; height: auto;
+      max-height: 220px; object-fit: cover; object-position: center;
+    }
+    .map-hint {
+      font-size: 11px; color: var(--text-dim); margin-top: 6px; text-align: center;
+    }
+    .watch-subtle {
+      margin-top: 10px; padding: 10px 12px;
+      background: var(--warning-soft); border: 1px solid rgba(251,191,36,0.25);
+      border-radius: var(--radius-sm); font-size: 12.5px; color: var(--warning);
+      line-height: 1.4;
+    }
+    .dayof-line {
+      font-size: 14px; color: var(--text); line-height: 1.45;
+    }
+    .dayof-line a { color: var(--accent-strong); font-weight: 600; }
+    .contact-one {
+      margin-top: 10px; padding: 10px 12px;
+      background: var(--bg-elev); border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font-size: 13.5px; color: var(--text);
+      font-family: var(--mono);
+    }
+    .contact-one a { color: var(--accent-strong); }
+
+    /* —— Lightbox —— */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.92);
+      align-items: center; justify-content: center;
+      padding: env(safe-area-inset-top, 12px) 12px calc(env(safe-area-inset-bottom, 12px) + 12px);
+      overscroll-behavior: contain;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-inner {
+      width: 100%; height: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y pinch-zoom;
+      border-radius: 8px;
+    }
+    .lightbox-inner img {
+      display: block; width: 100%; height: auto; min-width: 100%;
+    }
+    .lightbox-close {
+      position: absolute; top: calc(env(safe-area-inset-top, 8px) + 8px); right: 14px;
+      z-index: 201;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); color: #fff;
+      font-size: 22px; line-height: 1; display: grid; place-items: center;
+    }
+
     @media (min-width: 640px) {
       .panel { padding: 18px 24px 32px; max-width: 560px; margin: 0 auto; }
       .deck { justify-content: flex-start; }
@@ -445,6 +513,12 @@
 
   <div class="deck" id="deck" role="region" aria-label="Hill briefing deck"></div>
   <nav class="dots" id="dots" aria-label="Office navigation"></nav>
+  <div class="lightbox" id="mapLightbox" role="dialog" aria-modal="true" aria-label="Capitol Hill map">
+    <button type="button" class="lightbox-close" id="mapClose" aria-label="Close map">×</button>
+    <div class="lightbox-inner">
+      <img id="mapLightboxImg" src="capitol-hill-map.jpg" alt="Capitol Hill map full size" />
+    </div>
+  </div>
 
   <script>
   /* ============================================================
@@ -461,6 +535,14 @@
       NC: "Validation / oomph for Sec. Johnson — NOT a cold NCDOT intro",
       MI: "Validation / oomph for Dir. Wieferich — NOT a cold MDOT intro"
     },
+    wwDayOf: [
+      { name: "Martin Whitmer", tel: "+12023606999", display: "(202) 360-6999" },
+      { name: "Morgan Collins", tel: "+12013124682", display: "(201) 312-4682" }
+    ],
+    scheduleWatch: "W&W book lists Rivet at 1:00 and Scholten at 3:30 — calendar is source of truth.",
+    mapSrc: "capitol-hill-map.jpg",
+    mapLabel: "Capitol Hill map (from W&W)",
+    mapNote: "Capitol Hill Club + Longworth / Rayburn / Russell are marked. Tap to expand.",
     dayTimeline: [
       {
         time: "8:15–9:15",
@@ -497,6 +579,8 @@
       memberShort: "Rouzer",
       staff: "Jack Best",
       staffTitle: "Senior Legislative Assistant",
+      staffPhone: "202-225-2731",
+      staffPhoneTel: "+12022252731",
       staffEmail: "jack.best@mail.house.gov",
       attendees: "Jim + Marty",
       length: "30 min",
@@ -509,7 +593,7 @@
         background: "Rouzer intern (2019); SA/LC 2022–23; House LA elsewhere (McCarthy, Fitzgerald); returned as Sr LA Mar 2025. NC State affiliation.",
         covers: "Confirm who owns Highways & Transit / surface reauth day-to-day; recruit 1–2 staff champions through him."
       },
-      memberSnap: "David Rouzer — NC-7 (Wilmington–Cape Fear); House since 2015; Chairman, Highways and Transit (119th). Also Agriculture + Science/Space/Tech. DC: 2333 Rayburn · (202) 225-2731.",
+      memberSnap: "David Rouzer — NC-7; House since 2015; chairs Highways & Transit. Farm / Helms–Dole staff DNA. Also Ag + SST. DC: 2333 Rayburn.",
       why: {
         seat: "Chairs House T&I Highways and Transit (named Jan 2025) — highest House surface seat on today’s slate. Also Railroads; Ag; SST.",
         state: "NC Tier-1. Live NCDOT conversation (Jim ↔ Sec. Johnson). Hill job = cover and oomph for a risk-averse secretary — not a cold Raleigh intro.",
@@ -561,7 +645,9 @@
       memberShort: "McDowell",
       staff: "Alex Vargo",
       staffTitle: "Chief of Staff",
-      staffEmail: null,
+      staffPhone: "202-225-3065",
+      staffPhoneTel: "+12022253065",
+      staffEmail: "alex.vargo@mail.house.gov",
       attendees: "Jim + Marty",
       length: "30 min",
       framing: "NC",
@@ -573,7 +659,7 @@
         background: "Hill since ~2014; LD for Rep. Ted Budd (House); LA Sen. Mitt Romney; Florida Speaker Renner external affairs; Sr Advisor Rep. Neal Dunn. CoS from day one.",
         covers: "Full office gate — policy prioritization, member calendar, who becomes a champion. Recruit T&I/Highways owner through him."
       },
-      memberSnap: "Addison P. McDowell — NC-6 (Triad / Davidson–Davie); first elected 2024 (sworn Jan 2025); Lexington native. Prior staff for Budd & Hudson. DC: 1032 Longworth · (202) 225-3065. T&I: Highways & Transit, Aviation, Coast Guard & Maritime (Vice Chair).",
+      memberSnap: "Addison P. McDowell — NC-6 (Triad); freshman 2025. Brother’s fentanyl loss → drug/border priority (stay OFF that lane). Prior Budd & Hudson staff. T&I Highways & Transit (+ Aviation; CG Maritime VC). DC: 1032 Longworth.",
       why: {
         seat: "House T&I — Highways and Transit, Aviation, Coast Guard & Maritime (Vice Chair). Also Budget and Natural Resources.",
         state: "NC Tier-1. Jim ↔ Sec. Johnson already live. Hill job = cover and oomph — not a cold Raleigh intro.",
@@ -624,7 +710,9 @@
       memberShort: "Barrett",
       staff: "Elisabeth Conklin",
       staffTitle: "Legislative Director",
-      staffEmail: null,
+      staffPhone: "202-225-4872",
+      staffPhoneTel: "+12022254872",
+      staffEmail: "elisabeth.conklin@mail.house.gov",
       attendees: "Jim",
       length: "30 min",
       framing: "MI",
@@ -636,7 +724,7 @@
         background: "Seasoned House staffer; prior Senior/Professional Staff, House Small Business; franking / House Admin; earlier LA covering immigration, healthcare, education, telecom.",
         covers: "Full legislative portfolio — T&I + VA Tech Mod priorities, policy asks, staff champions. Treat as the gate."
       },
-      memberSnap: "Tom Barrett — MI-7 (mid-Michigan / Charlotte area); first elected 2024 (sworn Jan 2025); Army veteran (helicopter pilot); former MI House & Senate. Chairs VA Technology Modernization. DC: 1232 Longworth · (202) 225-4872. T&I: Aviation; ED/PBEM; Highways and Transit.",
+      memberSnap: "Tom Barrett — MI-7; freshman 2025. 22-yr Army aviator / veterans focus. Chairs VA Tech Mod. T&I: Highways & Transit + Aviation + ED/PBEM. DC: 1232 Longworth.",
       why: {
         seat: "House T&I — Highways and Transit (plus Aviation, ED/PBEM). Also chairs VA Technology Modernization — tech mod + human-in-the-loop is native language.",
         state: "MI Tier-1. MDOT Vendor Innovation Day (Dimondale, Sep 3); Dir. Wieferich already in motion — Hill air cover accelerates, does not open the door.",
@@ -684,6 +772,8 @@
       memberShort: "Scholten",
       staff: "Leila Fleming",
       staffTitle: "Senior Policy Adviser",
+      staffPhone: "202-225-3831",
+      staffPhoneTel: "+12022253831",
       staffEmail: "leila.fleming@mail.house.gov",
       attendees: "Jim + Marty",
       length: "30 min",
@@ -696,7 +786,7 @@
         background: "Continuity staffer (LA → SPA). Earlier Senate internship, Sen. Kyrsten Sinema (2019). CTA travel filing Jan 2026.",
         covers: "Policy gate / staff routing. Confirm who owns T&I (and any surface coordination); recruit 1–2 champions. Email: leila.fleming@mail.house.gov."
       },
-      memberSnap: "Hillary J. Scholten — MI-3 (Grand Rapids / West Michigan); first elected 2022; first Democrat in seat since 1993. Attorney (former DOJ). T&I: Aviation, Coast Guard & Maritime, Water Resources — NOT on Highways & Transit. Small Business Ranking Member, Innovation/Entrepreneurship/Workforce. DC: 1317 Longworth · (202) 225-3831.",
+      memberSnap: "Hillary J. Scholten — MI-3 (Grand Rapids); first woman+mother MI-3; DOJ Honors attorney. T&I full committee (not Highways). Small Business innovation RM. DC: 1317 Longworth.",
       why: {
         seat: "Full T&I (not Highways sub) + Small Business innovation Ranking Member. Still full committee for report language / hearing signal. Sponsored SBA AI Adoption Reporting Act (H.R. 8664).",
         state: "MI Tier-1. Innovation Day heat; Wieferich in motion. West Michigan = Democratic half of same-day bipartisan MI pair with Barrett.",
@@ -717,6 +807,7 @@
         "Ask: AI at scale? Report language → FHWA evaluate.",
         "Home runs: champions; Scholten → Wieferich call; testimony.",
         "Seat: full T&I (not Highways) + Small Business innovation RM.",
+        "Fleming: Akin Gump public policy → Scholten ladder.",
         "West Michigan roads / fair-share → delivery AI is on-brand.",
         "Same ask as Barrett (+ Rivet 3:30) — bipartisan MI stack.",
         "Say “Marty” / “Marty Whitmer” clearly — never blur with the governor.",
@@ -747,7 +838,9 @@
       memberShort: "Budd",
       staff: "Jacob Dunklin",
       staffTitle: "Legislative Assistant",
-      staffEmail: null,
+      staffPhone: "202-224-3154",
+      staffPhoneTel: "+12022243154",
+      staffEmail: "jacob_dunklin@budd.senate.gov",
       attendees: "Jim",
       length: "30 min",
       framing: "NC",
@@ -759,7 +852,7 @@
         background: "Public association skews healthcare and Budd’s supersonic/aviation push more than surface highways — expect education; recruit him or a colleague.",
         covers: "Confirm portfolio live; ask who owns Commerce science/competitiveness vs. transportation day-to-day."
       },
-      memberSnap: "Ted Budd — R-NC; Senate since 2023. Commerce: chairs Science, Manufacturing & Competitiveness; member Aviation, Space & Innovation — NOT on Surface Transportation. Also Armed Services, Small Business, Joint Economic. DC: 354 Russell · (202) 224-3154.",
+      memberSnap: "Ted Budd — R-NC; Senate since 2023. Davie County farm + small-business owner. Commerce Science/Manufacturing/Competitiveness chair (not Surface). Also Armed Services, Small Business, JEC. DC: 354 Russell.",
       why: {
         seat: "Commerce Science/Manufacturing/Competitiveness chair — applied tech, outcome metrics, China competition. Full Commerce reaches USDOT-adjacent oversight even without a Surface seat.",
         state: "NC Tier-1. Jim ↔ Sec. Johnson live. Hill job = cover for a risk-averse secretary.",
@@ -808,6 +901,8 @@
       memberShort: "Knott",
       staff: "Nate Higgins",
       staffTitle: "Senior Legislative Assistant",
+      staffPhone: "202-225-4531",
+      staffPhoneTel: "+12022254531",
       staffEmail: "nate.higgins@mail.house.gov",
       attendees: "Jim + Marty",
       length: "30 min",
@@ -820,7 +915,7 @@
         background: "Asheville native; Hampden-Sydney BA. Hill track: Meadows SA; Budd House intern (2021); Bishop intern; Biggs SA/LC; Mooney LA Aide; Bentz LA (OR-2); then Sr LA to Knott. Multi-portfolio: judiciary, homeland, transportation.",
         covers: "Confirm who owns Highways & Transit day-to-day; recruit champions through him. Email: nate.higgins@mail.house.gov."
       },
-      memberSnap: "Brad Knott — NC-13 (Wake / Triangle-centered); first elected 2024 (sworn Jan 2025); former prosecutor. T&I: Highways & Transit, Aviation, Water Resources. Also Judiciary, Homeland, Ethics. DC: 1239 Longworth · (202) 225-4531.",
+      memberSnap: "Brad Knott — NC-13 (Wake / Triangle); freshman 2025. Former federal prosecutor, organized crime. T&I Highways & Transit (+ Aviation, Water). Also Judiciary, Homeland, Ethics. DC: 1239 Longworth.",
       why: {
         seat: "House T&I Highways and Transit — House surface lane for FHWA report language. Triangle / Wake seat = district weight on roads, transit, RDU delivery.",
         state: "NC Tier-1. Fourth and final NC stop of the day — reinforcement, not a new story. Jim ↔ Johnson already live.",
@@ -872,7 +967,9 @@
       memberShort: "McDonald Rivet",
       staff: "Britt Van",
       staffTitle: "Legislative Director",
-      staffEmail: null,
+      staffPhone: "202-225-3611",
+      staffPhoneTel: "+12022253611",
+      staffEmail: "britt.van@mail.house.gov",
       attendees: "Jim + Marty (Jim accepted; Marty + Britt needsAction)",
       length: "30 min",
       framing: "MI",
@@ -881,8 +978,8 @@
         name: "Britt Van (Brittany M. Van)",
         title: "Legislative Director, Rep. Kristen McDonald Rivet (D-MI-8)",
         since: "~Apr 2026 (LD; public listings from Apr 13, 2026)",
-        background: "Returned to Hill as LD after ~3 years away. Prior: Policy Director, New Democrat Coalition (DelBene/Kilmer/Himes); Ginnie Mae senior advisor; National Housing Conference senior policy director; earlier JPMorgan Chase analyst.",
-        covers: "LD / legislative gate. Reported portfolio skews appropriations / defense / crime / intl / vets — NOT primarily highways. Tee the member’s Highways & Transit seat; confirm who owns surface day-to-day; she may pull that LA in. Recruit 1–2 champions through her."
+        background: "NDC policy vet + housing/Ginnie Mae — not a highways LA. Tee Member’s T&I Highways seat.",
+        covers: "LD gate. Confirm surface owner; she may pull that LA. Recruit 1–2 champions through her."
       },
       memberSnap: "Kristen McDonald Rivet — D-MI-8 (Genesee / Saginaw / Bay / Midland — Flint–Bay City); first elected 2024 (sworn Jan 2025); former MI Senate. New Dem freshman leadership rep. T&I: Highways & Transit + ED/PBEM. Also Agriculture. DC: 1408 Longworth · (202) 225-3611.",
       why: {
@@ -905,7 +1002,7 @@
         "Ask: AI at scale? Report language → FHWA evaluate.",
         "Home runs: champions; Rivet → Wieferich call; testimony.",
         "Seat: Highways & Transit (plus ED/PBEM) — tee the MEMBER’s surface seat.",
-        "Van = LD gate; portfolio may skew non-highways — ask her to pull the Highways LA.",
+        "Van = NDC/housing vet, not highways LA — tee Member T&I seat; pull that LA.",
         "I-75/I-69 Genesee (~$1.3B rebuild; flyover band-aid) = rapport, not earmark.",
         "Same ask as Barrett 11:30 + Scholten 1:00 — bipartisan MI stack.",
         "Say “Marty” / “Marty Whitmer” clearly — never blur with the governor.",
@@ -968,6 +1065,10 @@
     `).join("");
     const items = breakfastItem + officeItems;
 
+    const wwLine = DAY.wwDayOf.map(c =>
+      `${esc(c.name)} <a href="tel:${esc(c.tel)}">${esc(c.display)}</a>`
+    ).join(" · ");
+
     return `
       <section class="panel" data-panel="0" id="panel-home">
         <div class="home-hero">
@@ -987,6 +1088,19 @@
         <div class="card" style="margin-bottom:12px">
           <h3>Day at a glance</h3>
           <div class="day-list">${items}</div>
+          <div class="watch-subtle">${esc(DAY.scheduleWatch)}</div>
+        </div>
+        <div class="card map-card">
+          <h3>${esc(DAY.mapLabel)}</h3>
+          <p class="map-note">${esc(DAY.mapNote)}</p>
+          <button type="button" class="map-wrap" id="mapOpen" aria-label="Open Capitol Hill map full screen">
+            <img src="${esc(DAY.mapSrc)}" alt="Capitol Hill map from Whitmer &amp; Worrall briefing book" width="1200" height="800" loading="lazy" />
+          </button>
+          <p class="map-hint">Tap map to expand · pinch to zoom</p>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <h3>Day-of W&amp;W</h3>
+          <p class="dayof-line">Walking-around: ${wwLine}</p>
         </div>
         <div class="card" style="margin-top:12px">
           <h3>Hard nos (all offices)</h3>
@@ -1010,8 +1124,8 @@
             <div class="kv-row"><div class="k">Since</div><div class="v">${esc(who.since)}</div></div>
             <div class="kv-row"><div class="k">Background</div><div class="v">${esc(who.background)}</div></div>
             <div class="kv-row"><div class="k">Covers</div><div class="v">${esc(who.covers)}</div></div>
-            ${o.staffEmail ? `<div class="kv-row"><div class="k">Email</div><div class="v mono">${esc(o.staffEmail)}</div></div>` : ""}
           </div>
+          ${o.staffPhone || o.staffEmail ? `<div class="contact-one">${o.staffPhone ? `<a href="tel:${esc(o.staffPhoneTel || ('+1' + String(o.staffPhone).replace(/\D/g, '')))}">${esc(o.staffPhone)}</a>` : ""}${o.staffPhone && o.staffEmail ? " · " : ""}${o.staffEmail ? `<a href="mailto:${esc(o.staffEmail)}">${esc(o.staffEmail)}</a>` : ""}</div>` : ""}
           <div class="member-snap"><strong>Member:</strong> ${esc(o.memberSnap)}</div>
         </div>
         <div class="logistics">
@@ -1138,6 +1252,16 @@
       });
     }, { root: deck, threshold: 0.55 });
     panels.forEach(p => io.observe(p));
+
+    // Map lightbox (home)
+    const lb = document.getElementById("mapLightbox");
+    const openMap = () => { if (lb) lb.classList.add("open"); };
+    const closeMap = () => { if (lb) lb.classList.remove("open"); };
+    document.body.addEventListener("click", (e) => {
+      if (e.target.closest("#mapOpen")) { e.preventDefault(); openMap(); }
+      if (e.target.closest("#mapClose") || (e.target === lb)) closeMap();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMap(); });
   }
 
   build();
